@@ -20,7 +20,7 @@ public class MenuController {
     @Resource
     private MenuService menuService;
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("menu:query")
     @GetMapping("/list")
     public Result<IPage<Menu>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -30,27 +30,27 @@ public class MenuController {
         return Result.success(result);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("menu:query")
     @GetMapping("/{id}")
     public Result<Menu> getById(@PathVariable Long id) {
         return Result.success(menuService.getById(id));
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("menu:add")
     @PostMapping
     public Result<Void> save(@Valid @RequestBody MenuDTO dto) {
         menuService.save(dto);
         return Result.success(null);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("menu:update")
     @PutMapping
     public Result<Void> update(@Valid @RequestBody MenuDTO dto) {
         menuService.update(dto);
         return Result.success(null);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("menu:delete")
     @DeleteMapping("/{id}")
     public Result<Void> deleteById(@PathVariable Long id) {
         menuService.deleteById(id);

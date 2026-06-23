@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>菜单管理</span>
-          <el-button type="primary" @click="handleAdd">新增菜单</el-button>
+          <el-button v-hasPermi="'menu:add'" type="primary" @click="handleAdd">新增菜单</el-button>
         </div>
       </template>
       
@@ -42,8 +42,8 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row.id)">删除</el-button>
+            <el-button v-hasPermi="'menu:update'" link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-hasPermi="'menu:delete'" link type="danger" @click="handleDelete(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -141,11 +141,41 @@ INSERT INTO `sys_role` (`role_name`, `role_code`, `description`, `status`) VALUE
 ('普通用户', 'user', '普通用户', 1);
 
 INSERT INTO `sys_permission` (`perm_name`, `perm_code`, `description`, `status`) VALUES 
-('用户管理', 'user:manage', '用户管理权限', 1),
-('角色管理', 'role:manage', '角色管理权限', 1),
-('权限管理', 'perm:manage', '权限管理权限', 1),
-('宝物管理', 'treasure:manage', '宝物管理权限', 1),
-('订单管理', 'order:manage', '订单管理权限', 1);
+-- 用户管理
+('用户新增', 'user:add', '用户新增权限', 1),
+('用户删除', 'user:delete', '用户删除权限', 1),
+('用户修改', 'user:update', '用户修改权限', 1),
+('用户查询', 'user:query', '用户查询权限', 1),
+-- 角色管理
+('角色新增', 'role:add', '角色新增权限', 1),
+('角色删除', 'role:delete', '角色删除权限', 1),
+('角色修改', 'role:update', '角色修改权限', 1),
+('角色查询', 'role:query', '角色查询权限', 1),
+-- 权限管理
+('权限新增', 'perm:add', '权限新增权限', 1),
+('权限删除', 'perm:delete', '权限删除权限', 1),
+('权限修改', 'perm:update', '权限修改权限', 1),
+('权限查询', 'perm:query', '权限查询权限', 1),
+-- 宝物管理
+('宝物新增', 'treasure:add', '宝物新增权限', 1),
+('宝物删除', 'treasure:delete', '宝物删除权限', 1),
+('宝物修改', 'treasure:update', '宝物修改权限', 1),
+('宝物查询', 'treasure:query', '宝物查询权限', 1),
+-- 订单管理
+('订单新增', 'order:add', '订单新增权限', 1),
+('订单删除', 'order:delete', '订单删除权限', 1),
+('订单修改', 'order:update', '订单修改权限', 1),
+('订单查询', 'order:query', '订单查询权限', 1),
+-- 菜单管理
+('菜单新增', 'menu:add', '菜单新增权限', 1),
+('菜单删除', 'menu:delete', '菜单删除权限', 1),
+('菜单修改', 'menu:update', '菜单修改权限', 1),
+('菜单查询', 'menu:query', '菜单查询权限', 1),
+-- 数据字典
+('字典新增', 'dict:add', '字典新增权限', 1),
+('字典删除', 'dict:delete', '字典删除权限', 1),
+('字典修改', 'dict:update', '字典修改权限', 1),
+('字典查询', 'dict:query', '字典查询权限', 1);
 
 INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `path`, `component`, `icon`, `sort_order`, `status`) VALUES 
 (0, '法器管理', '/magic-tool', 'magic-tool/index', 'icon-tool', 1, 1),

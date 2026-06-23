@@ -22,7 +22,7 @@ public class TreasureController {
     @Resource
     private TreasureService treasureService;
 
-    @SaCheckPermission("treasure:manage")
+    @SaCheckPermission("treasure:query")
     @GetMapping("/list")
     public Result<IPage<Treasure>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -33,34 +33,34 @@ public class TreasureController {
         return Result.success(result);
     }
 
-    @SaCheckPermission("treasure:manage")
+    @SaCheckPermission("treasure:query")
     @GetMapping("/{id}")
     public Result<Treasure> getById(@PathVariable Long id) {
         return Result.success(treasureService.getById(id));
     }
 
-    @SaCheckPermission("treasure:manage")
+    @SaCheckPermission("treasure:add")
     @PostMapping
     public Result<Void> save(@Valid @RequestBody TreasureDTO dto) {
         treasureService.save(dto);
         return Result.success(null);
     }
 
-    @SaCheckPermission("treasure:manage")
+    @SaCheckPermission("treasure:update")
     @PutMapping
     public Result<Void> update(@Valid @RequestBody TreasureDTO dto) {
         treasureService.update(dto);
         return Result.success(null);
     }
 
-    @SaCheckPermission("treasure:manage")
+    @SaCheckPermission("treasure:delete")
     @DeleteMapping("/{id}")
     public Result<Void> deleteById(@PathVariable Long id) {
         treasureService.deleteById(id);
         return Result.success(null);
     }
 
-    @SaCheckPermission("treasure:manage")
+    @SaCheckPermission("treasure:query")
     @GetMapping("/category/{category}")
     public Result<List<Treasure>> listByCategory(@PathVariable String category) {
         return Result.success(treasureService.listByCategory(category));

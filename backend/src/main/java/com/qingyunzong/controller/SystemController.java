@@ -23,7 +23,7 @@ public class SystemController {
     @Resource
     private SystemService systemService;
 
-    @SaCheckPermission("user:manage")
+    @SaCheckPermission("user:query")
     @GetMapping("/user/list")
     public Result<IPage<User>> listUsers(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -33,34 +33,34 @@ public class SystemController {
         return Result.success(result);
     }
 
-    @SaCheckPermission("user:manage")
+    @SaCheckPermission("user:query")
     @GetMapping("/user/{id}")
     public Result<User> getUserById(@PathVariable Long id) {
         return Result.success(systemService.getUserById(id));
     }
 
-    @SaCheckPermission("user:manage")
+    @SaCheckPermission("user:add")
     @PostMapping("/user")
     public Result<Void> saveUser(@RequestBody User user) {
         systemService.saveUser(user);
         return Result.success(null);
     }
 
-    @SaCheckPermission("user:manage")
+    @SaCheckPermission("user:update")
     @PutMapping("/user")
     public Result<Void> updateUser(@RequestBody User user) {
         systemService.updateUser(user);
         return Result.success(null);
     }
 
-    @SaCheckPermission("user:manage")
+    @SaCheckPermission("user:delete")
     @DeleteMapping("/user/{id}")
     public Result<Void> deleteUserById(@PathVariable Long id) {
         systemService.deleteUserById(id);
         return Result.success(null);
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:query")
     @GetMapping("/role/list")
     public Result<IPage<Role>> listRoles(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -70,34 +70,34 @@ public class SystemController {
         return Result.success(result);
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:query")
     @GetMapping("/role/{id}")
     public Result<Role> getRoleById(@PathVariable Long id) {
         return Result.success(systemService.getRoleById(id));
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:add")
     @PostMapping("/role")
     public Result<Void> saveRole(@RequestBody Role role) {
         systemService.saveRole(role);
         return Result.success(null);
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:update")
     @PutMapping("/role")
     public Result<Void> updateRole(@RequestBody Role role) {
         systemService.updateRole(role);
         return Result.success(null);
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:delete")
     @DeleteMapping("/role/{id}")
     public Result<Void> deleteRoleById(@PathVariable Long id) {
         systemService.deleteRoleById(id);
         return Result.success(null);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("perm:query")
     @GetMapping("/permission/list")
     public Result<IPage<Permission>> listPermissions(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -107,67 +107,67 @@ public class SystemController {
         return Result.success(result);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("perm:query")
     @GetMapping("/permission/{id}")
     public Result<Permission> getPermissionById(@PathVariable Long id) {
         return Result.success(systemService.getPermissionById(id));
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("perm:add")
     @PostMapping("/permission")
     public Result<Void> savePermission(@RequestBody Permission permission) {
         systemService.savePermission(permission);
         return Result.success(null);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("perm:update")
     @PutMapping("/permission")
     public Result<Void> updatePermission(@RequestBody Permission permission) {
         systemService.updatePermission(permission);
         return Result.success(null);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("perm:delete")
     @DeleteMapping("/permission/{id}")
     public Result<Void> deletePermissionById(@PathVariable Long id) {
         systemService.deletePermissionById(id);
         return Result.success(null);
     }
 
-    @SaCheckPermission("user:manage")
+    @SaCheckPermission("user:update")
     @PostMapping("/user/{userId}/roles")
     public Result<Void> assignRolesToUser(@PathVariable Long userId, @RequestBody List<Long> roleIds) {
         systemService.assignRolesToUser(userId, roleIds);
         return Result.success(null);
     }
 
-    @SaCheckPermission("user:manage")
+    @SaCheckPermission("user:query")
     @GetMapping("/user/{userId}/roles")
     public Result<List<Role>> getUserRoles(@PathVariable Long userId) {
         return Result.success(systemService.getUserRoles(userId));
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:update")
     @PostMapping("/role/{roleId}/permissions")
     public Result<Void> assignPermissionsToRole(@PathVariable Long roleId, @RequestBody List<Long> permissionIds) {
         systemService.assignPermissionsToRole(roleId, permissionIds);
         return Result.success(null);
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:query")
     @GetMapping("/role/{roleId}/permissions")
     public Result<List<Permission>> getRolePermissions(@PathVariable Long roleId) {
         return Result.success(systemService.getRolePermissions(roleId));
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:update")
     @PostMapping("/role/{roleId}/menus")
     public Result<Void> assignMenusToRole(@PathVariable Long roleId, @RequestBody List<Long> menuIds) {
         systemService.assignMenusToRole(roleId, menuIds);
         return Result.success(null);
     }
 
-    @SaCheckPermission("role:manage")
+    @SaCheckPermission("role:query")
     @GetMapping("/role/{roleId}/menus")
     public Result<List<Menu>> getRoleMenus(@PathVariable Long roleId) {
         return Result.success(systemService.getRoleMenus(roleId));

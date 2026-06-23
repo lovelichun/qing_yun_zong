@@ -39,7 +39,7 @@ public class DataDictController {
         return Result.success(result);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("dict:query")
     @GetMapping("/list")
     public Result<IPage<DataDictEntity>> listDicts(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -49,27 +49,27 @@ public class DataDictController {
         return Result.success(dataDictService.listDicts(page, dictType));
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("dict:query")
     @GetMapping("/{id}")
     public Result<DataDictEntity> getDictById(@PathVariable Long id) {
         return Result.success(dataDictService.getDictById(id));
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("dict:add")
     @PostMapping
     public Result<Void> saveDict(@RequestBody DataDictEntity dict) {
         dataDictService.saveDict(dict);
         return Result.success(null);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("dict:update")
     @PutMapping
     public Result<Void> updateDict(@RequestBody DataDictEntity dict) {
         dataDictService.updateDict(dict);
         return Result.success(null);
     }
 
-    @SaCheckPermission("perm:manage")
+    @SaCheckPermission("dict:delete")
     @DeleteMapping("/{id}")
     public Result<Void> deleteDict(@PathVariable Long id) {
         dataDictService.deleteDict(id);

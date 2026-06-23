@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>角色管理</span>
-          <el-button type="primary" @click="handleAdd">新增角色</el-button>
+          <el-button v-hasPermi="'role:add'" type="primary" @click="handleAdd">新增角色</el-button>
         </div>
       </template>
       
@@ -39,10 +39,10 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="320" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="success" @click="handleAssignPermissions(row)">分配权限</el-button>
-            <el-button link type="info" @click="handleAssignMenus(row)">分配菜单</el-button>
-            <el-button link type="danger" @click="handleDelete(row.id)">删除</el-button>
+            <el-button v-hasPermi="'role:update'" link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-hasPermi="'role:update'" link type="success" @click="handleAssignPermissions(row)">分配权限</el-button>
+            <el-button v-hasPermi="'role:update'" link type="info" @click="handleAssignMenus(row)">分配菜单</el-button>
+            <el-button v-hasPermi="'role:delete'" link type="danger" @click="handleDelete(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

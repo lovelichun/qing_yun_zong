@@ -18,7 +18,7 @@ public class OrderController {
     @Resource
     private OrderService orderService;
 
-    @SaCheckPermission("order:manage")
+    @SaCheckPermission("order:query")
     @GetMapping("/list")
     public Result<IPage<Order>> list(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -28,27 +28,27 @@ public class OrderController {
         return Result.success(result);
     }
 
-    @SaCheckPermission("order:manage")
+    @SaCheckPermission("order:query")
     @GetMapping("/{id}")
     public Result<Order> getById(@PathVariable Long id) {
         return Result.success(orderService.getById(id));
     }
 
-    @SaCheckPermission("order:manage")
+    @SaCheckPermission("order:add")
     @PostMapping
     public Result<Void> save(@Valid @RequestBody OrderDTO dto) {
         orderService.save(dto);
         return Result.success(null);
     }
 
-    @SaCheckPermission("order:manage")
+    @SaCheckPermission("order:update")
     @PutMapping
     public Result<Void> update(@Valid @RequestBody OrderDTO dto) {
         orderService.update(dto);
         return Result.success(null);
     }
 
-    @SaCheckPermission("order:manage")
+    @SaCheckPermission("order:delete")
     @DeleteMapping("/{id}")
     public Result<Void> deleteById(@PathVariable Long id) {
         orderService.deleteById(id);
