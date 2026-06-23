@@ -249,6 +249,11 @@ public class SystemServiceImpl implements SystemService {
 
     @Override
     public List<Menu> getUserMenus(Long userId) {
+        User user=userMapper.selectById(userId);
+        if ("admin".equals(user.getUsername())) {
+            return menuMapper.selectList(new LambdaQueryWrapper<>());
+        }
+
         List<Role> roles = getUserRoles(userId);
         
         if (roles.isEmpty()) {

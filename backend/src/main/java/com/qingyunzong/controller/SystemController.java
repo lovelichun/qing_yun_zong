@@ -1,6 +1,8 @@
 package com.qingyunzong.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.stp.StpUtil;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qingyunzong.common.Result;
@@ -173,7 +175,7 @@ public class SystemController {
 
     @GetMapping("/user/menus")
     public Result<List<Menu>> getUserMenus() {
-        Long userId = Long.parseLong(cn.dev33.satoken.stp.StpUtil.getLoginIdAsString());
+        Long userId = Long.parseLong(StpUtil.getLoginIdAsString());
         return Result.success(systemService.getUserMenus(userId));
     }
 }
