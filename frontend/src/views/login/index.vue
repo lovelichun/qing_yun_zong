@@ -75,6 +75,9 @@ const login = async () => {
   try {
     const res = await loginApi(form.value)
     localStorage.setItem('token', res.data.token)
+    localStorage.setItem('user', JSON.stringify(res.data.user))
+    localStorage.setItem('roles', JSON.stringify(res.data.roles || []))
+    localStorage.setItem('permissions', JSON.stringify(res.data.permissions || []))
     ElMessage.success('登录成功')
     router.push('/')
   } catch (error) {

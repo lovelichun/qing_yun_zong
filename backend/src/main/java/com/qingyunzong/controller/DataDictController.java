@@ -1,5 +1,6 @@
 package com.qingyunzong.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qingyunzong.common.Result;
@@ -38,6 +39,7 @@ public class DataDictController {
         return Result.success(result);
     }
 
+    @SaCheckPermission("perm:manage")
     @GetMapping("/list")
     public Result<IPage<DataDictEntity>> listDicts(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -47,23 +49,27 @@ public class DataDictController {
         return Result.success(dataDictService.listDicts(page, dictType));
     }
 
+    @SaCheckPermission("perm:manage")
     @GetMapping("/{id}")
     public Result<DataDictEntity> getDictById(@PathVariable Long id) {
         return Result.success(dataDictService.getDictById(id));
     }
 
+    @SaCheckPermission("perm:manage")
     @PostMapping
     public Result<Void> saveDict(@RequestBody DataDictEntity dict) {
         dataDictService.saveDict(dict);
         return Result.success(null);
     }
 
+    @SaCheckPermission("perm:manage")
     @PutMapping
     public Result<Void> updateDict(@RequestBody DataDictEntity dict) {
         dataDictService.updateDict(dict);
         return Result.success(null);
     }
 
+    @SaCheckPermission("perm:manage")
     @DeleteMapping("/{id}")
     public Result<Void> deleteDict(@PathVariable Long id) {
         dataDictService.deleteDict(id);

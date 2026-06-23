@@ -2,11 +2,10 @@ package com.qingyunzong.controller;
 
 import com.qingyunzong.common.Result;
 import com.qingyunzong.dto.LoginDTO;
-import com.qingyunzong.entity.User;
 import com.qingyunzong.service.LoginService;
 
 import cn.dev33.satoken.annotation.SaIgnore;
-import cn.dev33.satoken.util.SaResult;
+import cn.dev33.satoken.stp.StpUtil;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +19,11 @@ public class LoginController {
     @Resource
     private LoginService loginService;
 
+    @SaIgnore
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@Valid @RequestBody LoginDTO loginDTO) {
-        User user = loginService.login(loginDTO);
-        Map<String, Object> result = new HashMap<>();
-        result.put("user", user);
-        result.put("token", cn.dev33.satoken.stp.StpUtil.getTokenValue());
-        SaResult.ok();
+        Map<String, Object> result = loginService.login(loginDTO);
+        result.put("token", StpUtil.getTokenValue());
         return Result.success(result);
     }
 

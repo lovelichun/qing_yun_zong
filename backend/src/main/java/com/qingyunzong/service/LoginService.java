@@ -1,11 +1,12 @@
 package com.qingyunzong.service;
 
 import com.qingyunzong.dto.LoginDTO;
-import com.qingyunzong.entity.User;
+
+import java.util.Map;
 
 public interface LoginService {
 
-    User login(LoginDTO loginDTO);
+    Map<String, Object> login(LoginDTO loginDTO);
 
     void logout();
 

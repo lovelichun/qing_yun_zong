@@ -3,9 +3,12 @@ package com.qingyunzong.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.qingyunzong.dto.LoginDTO;
+import com.qingyunzong.entity.Permission;
+import com.qingyunzong.entity.Role;
 import com.qingyunzong.entity.User;
 import com.qingyunzong.mapper.UserMapper;
 import com.qingyunzong.service.LoginService;
+import com.qingyunzong.service.SystemService;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -15,7 +18,10 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -26,8 +32,11 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private DefaultKaptcha captchaProducer;
 
+    @Resource
+    private SystemService systemService;
+
     @Override
-    public User login(LoginDTO loginDTO) {
+    public Map<String, Object> login(LoginDTO loginDTO) {
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, loginDTO.getUsername()));
 
@@ -40,7 +49,20 @@ public class LoginServiceImpl implements LoginService {
         }
 
         StpUtil.login(user.getId());
-        return user;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("user", user);
+        
+        List<Role> roles = systemService.getUserRoles(user.getId());
+        result.put("roles", roles.stream().map(Role::getRoleCode).collect(Collectors.toList()));
+        
+        List<Permission> permissions = roles.stream()
+                .flatMap(role -> systemService.getRolePermissions(role.getId()).stream())
+                .distinct()
+                .collect(Collectors.toList());
+        result.put("permissions", permissions.stream().map(Permission::getPermCode).collect(Collectors.toList()));
+        
+        return result;
     }
 
     @Override
