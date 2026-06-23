@@ -48,6 +48,16 @@ CREATE TABLE IF NOT EXISTS `sys_role_permission` (
   KEY `idx_permission_id` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色权限关联表';
 
+CREATE TABLE IF NOT EXISTS `sys_role_menu` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  `role_id` BIGINT NOT NULL COMMENT '角色ID',
+  `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  UNIQUE KEY `uk_role_menu` (`role_id`, `menu_id`),
+  KEY `idx_role_id` (`role_id`),
+  KEY `idx_menu_id` (`menu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色菜单关联表';
+
 CREATE TABLE IF NOT EXISTS `sys_menu` (
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '菜单ID',
   `parent_id` BIGINT DEFAULT 0 COMMENT '父菜单ID',
@@ -149,4 +159,22 @@ INSERT INTO `sys_menu` (`parent_id`, `menu_name`, `path`, `component`, `icon`, `
 (7, '角色管理', '/system/role', 'system/role/index', 'icon-role', 2, 1),
 (7, '权限管理', '/system/permission', 'system/permission/index', 'icon-key', 3, 1),
 (0, '订单管理', '/order', 'order/index', 'icon-order', 8, 1),
-(0, '宝物管理', '/treasure', 'treasure/index', 'icon-treasure', 9, 1);
+(0, '宝物管理', '/treasure', 'treasure/index', 'icon-treasure', 9, 1),
+(0, '菜单管理', '/menu', 'menu/index', 'icon-menu', 10, 1),
+(0, '数据字典', '/dict', 'dict/index', 'icon-dict', 11, 1);
+
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES 
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(1, 14);

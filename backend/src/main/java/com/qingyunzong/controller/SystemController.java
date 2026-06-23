@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qingyunzong.common.Result;
+import com.qingyunzong.entity.Menu;
 import com.qingyunzong.entity.Permission;
 import com.qingyunzong.entity.Role;
 import com.qingyunzong.entity.User;
@@ -155,5 +156,24 @@ public class SystemController {
     @GetMapping("/role/{roleId}/permissions")
     public Result<List<Permission>> getRolePermissions(@PathVariable Long roleId) {
         return Result.success(systemService.getRolePermissions(roleId));
+    }
+
+    @SaCheckPermission("role:manage")
+    @PostMapping("/role/{roleId}/menus")
+    public Result<Void> assignMenusToRole(@PathVariable Long roleId, @RequestBody List<Long> menuIds) {
+        systemService.assignMenusToRole(roleId, menuIds);
+        return Result.success(null);
+    }
+
+    @SaCheckPermission("role:manage")
+    @GetMapping("/role/{roleId}/menus")
+    public Result<List<Menu>> getRoleMenus(@PathVariable Long roleId) {
+        return Result.success(systemService.getRoleMenus(roleId));
+    }
+
+    @GetMapping("/user/menus")
+    public Result<List<Menu>> getUserMenus() {
+        Long userId = Long.parseLong(cn.dev33.satoken.stp.StpUtil.getLoginIdAsString());
+        return Result.success(systemService.getUserMenus(userId));
     }
 }

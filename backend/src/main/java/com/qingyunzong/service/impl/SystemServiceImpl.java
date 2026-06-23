@@ -3,13 +3,17 @@ package com.qingyunzong.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qingyunzong.entity.Menu;
 import com.qingyunzong.entity.Permission;
 import com.qingyunzong.entity.Role;
+import com.qingyunzong.entity.RoleMenu;
 import com.qingyunzong.entity.RolePermission;
 import com.qingyunzong.entity.User;
 import com.qingyunzong.entity.UserRole;
+import com.qingyunzong.mapper.MenuMapper;
 import com.qingyunzong.mapper.PermissionMapper;
 import com.qingyunzong.mapper.RoleMapper;
+import com.qingyunzong.mapper.RoleMenuMapper;
 import com.qingyunzong.mapper.RolePermissionMapper;
 import com.qingyunzong.mapper.UserMapper;
 import com.qingyunzong.mapper.UserRoleMapper;
@@ -40,6 +44,12 @@ public class SystemServiceImpl implements SystemService {
 
     @Resource
     private RolePermissionMapper rolePermissionMapper;
+
+    @Resource
+    private RoleMenuMapper roleMenuMapper;
+
+    @Resource
+    private MenuMapper menuMapper;
 
     @Override
     public IPage<User> listUsers(Page<User> page) {
@@ -199,5 +209,67 @@ public class SystemServiceImpl implements SystemService {
                 .collect(Collectors.toList());
         
         return permissionMapper.selectBatchIds(permissionIds);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void assignMenusToRole(Long roleId, List<Long> menuIds) {
+        LambdaQueryWrapper<RoleMenu> deleteWrapper = new LambdaQueryWrapper<>();
+        deleteWrapper.eq(RoleMenu::getRoleId, roleId);
+        roleMenuMapper.delete(deleteWrapper);
+
+        if (menuIds != null && !menuIds.isEmpty()) {
+            List<RoleMenu> roleMenus = menuIds.stream().map(menuId -> {
+                RoleMenu roleMenu = new RoleMenu();
+                roleMenu.setRoleId(roleId);
+                roleMenu.setMenuId(menuId);
+                roleMenu.setCreateTime(LocalDateTime.now());
+                return roleMenu;
+            }).collect(Collectors.toList());
+            roleMenus.forEach(roleMenuMapper::insert);
+        }
+    }
+
+    @Override
+    public List<Menu> getRoleMenus(Long roleId) {
+        LambdaQueryWrapper<RoleMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RoleMenu::getRoleId, roleId);
+        List<RoleMenu> roleMenus = roleMenuMapper.selectList(wrapper);
+        
+        if (roleMenus.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Long> menuIds = roleMenus.stream()
+                .map(RoleMenu::getMenuId)
+                .collect(Collectors.toList());
+        
+        return menuMapper.selectBatchIds(menuIds);
+    }
+
+    @Override
+    public List<Menu> getUserMenus(Long userId) {
+        List<Role> roles = getUserRoles(userId);
+        
+        if (roles.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Long> roleIds = roles.stream().map(Role::getId).collect(Collectors.toList());
+        
+        LambdaQueryWrapper<RoleMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(RoleMenu::getRoleId, roleIds);
+        List<RoleMenu> roleMenus = roleMenuMapper.selectList(wrapper);
+        
+        if (roleMenus.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Long> menuIds = roleMenus.stream()
+                .map(RoleMenu::getMenuId)
+                .distinct()
+                .collect(Collectors.toList());
+        
+        return menuMapper.selectBatchIds(menuIds);
     }
 }

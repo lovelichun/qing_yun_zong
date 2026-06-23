@@ -37,10 +37,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="240" fixed="right">
+        <el-table-column label="操作" width="320" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
             <el-button link type="success" @click="handleAssignPermissions(row)">分配权限</el-button>
+            <el-button link type="info" @click="handleAssignMenus(row)">分配菜单</el-button>
             <el-button link type="danger" @click="handleDelete(row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -94,13 +95,30 @@
         <el-button type="primary" @click="handleSavePermissions">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 菜单分配对话框 -->
+    <el-dialog v-model="menuDialogVisible" title="分配菜单" width="500px">
+      <el-tree
+        :data="menuTreeData"
+        :props="{ label: 'menuName', children: 'children' }"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        ref="menuTreeRef"
+      />
+      <template #footer>
+        <el-button @click="menuDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveMenus">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getRoleList, addRole, updateRole, deleteRole, getPermissionList, assignPermissionsToRole, getRolePermissions } from '@/api/system'
+import { getRoleList, addRole, updateRole, deleteRole, getPermissionList, assignPermissionsToRole, getRolePermissions, getRoleMenus, assignMenusToRole } from '@/api/system'
+import { getAllMenus } from '@/api/menu'
 
 const queryForm = reactive({ roleName: '', status: null })
 const pagination = reactive({ pageNum: 1, pageSize: 10, total: 0 })
@@ -119,6 +137,11 @@ const permissionDialogVisible = ref(false)
 const allPermissions = ref([])
 const selectedPermissionIds = ref([])
 const currentRoleId = ref(null)
+
+// 菜单分配相关
+const menuDialogVisible = ref(false)
+const menuTreeData = ref([])
+const menuTreeRef = ref(null)
 
 const loadData = async () => {
   try {
@@ -179,6 +202,61 @@ const handleSavePermissions = async () => {
     permissionDialogVisible.value = false
   } catch (error) {
     ElMessage.error('权限分配失败')
+  }
+}
+
+// 菜单分配相关函数
+const handleAssignMenus = async (row) => {
+  currentRoleId.value = row.id
+  try {
+    const menusRes = await getAllMenus()
+    menuTreeData.value = buildMenuTree(menusRes.data)
+    
+    const roleMenusRes = await getRoleMenus(row.id)
+    const selectedMenuIds = roleMenusRes.data.map(menu => menu.id)
+    
+    setTimeout(() => {
+      if (menuTreeRef.value) {
+        menuTreeRef.value.setCheckedKeys(selectedMenuIds)
+      }
+    }, 100)
+    
+    menuDialogVisible.value = true
+  } catch (error) {
+    ElMessage.error('加载菜单数据失败')
+  }
+}
+
+const buildMenuTree = (menus) => {
+  const map = new Map()
+  const roots = []
+  
+  menus.forEach(menu => {
+    map.set(menu.id, { ...menu, children: [] })
+  })
+  
+  menus.forEach(menu => {
+    if (menu.parentId === 0) {
+      roots.push(map.get(menu.id))
+    } else {
+      const parent = map.get(menu.parentId)
+      if (parent) {
+        parent.children.push(map.get(menu.id))
+      }
+    }
+  })
+  
+  return roots
+}
+
+const handleSaveMenus = async () => {
+  try {
+    const selectedMenuIds = menuTreeRef.value.getCheckedKeys()
+    await assignMenusToRole(currentRoleId.value, selectedMenuIds)
+    ElMessage.success('菜单分配成功')
+    menuDialogVisible.value = false
+  } catch (error) {
+    ElMessage.error('菜单分配失败')
   }
 }
 

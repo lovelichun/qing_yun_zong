@@ -2,6 +2,7 @@ package com.qingyunzong.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qingyunzong.entity.Menu;
 import com.qingyunzong.entity.Permission;
 import com.qingyunzong.entity.Role;
 import com.qingyunzong.entity.User;
@@ -35,4 +36,11 @@ public interface SystemService {
     // 角色权限关联
     void assignPermissionsToRole(Long roleId, List<Long> permissionIds);
     List<Permission> getRolePermissions(Long roleId);
+
+    // 角色菜单关联
+    void assignMenusToRole(Long roleId, List<Long> menuIds);
+    List<Menu> getRoleMenus(Long roleId);
+
+    // 获取用户菜单（用于前端动态渲染）
+    List<Menu> getUserMenus(Long userId);
 }

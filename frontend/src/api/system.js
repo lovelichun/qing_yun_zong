@@ -145,3 +145,27 @@ export const getRolePermissions = (roleId) => {
     method: 'get'
   })
 }
+
+// 角色菜单关联
+export const assignMenusToRole = (roleId, menuIds) => {
+  return request({
+    url: `/system/role/${roleId}/menus`,
+    method: 'post',
+    data: menuIds
+  })
+}
+
+export const getRoleMenus = (roleId) => {
+  return request({
+    url: `/system/role/${roleId}/menus`,
+    method: 'get'
+  })
+}
+
+// 获取用户菜单
+export const getUserMenus = () => {
+  return request({
+    url: '/system/user/menus',
+    method: 'get'
+  })
+}

@@ -10,64 +10,26 @@
         router
         mode="vertical"
       >
-        <el-menu-item index="/treasure">
-          <el-icon><component :is="icons.treasure" /></el-icon>
-          <span>宝物管理</span>
-        </el-menu-item>
-        <el-menu-item index="/magic-tool">
-          <el-icon><component :is="icons.tool" /></el-icon>
-          <span>法器管理</span>
-        </el-menu-item>
-        <el-menu-item index="/weapon">
-          <el-icon><component :is="icons.sword" /></el-icon>
-          <span>兵器管理</span>
-        </el-menu-item>
-        <el-menu-item index="/pill">
-          <el-icon><component :is="icons.pill" /></el-icon>
-          <span>丹药管理</span>
-        </el-menu-item>
-        <el-menu-item index="/spirit-material">
-          <el-icon><component :is="icons.leaf" /></el-icon>
-          <span>灵材管理</span>
-        </el-menu-item>
-        <el-menu-item index="/skill">
-          <el-icon><component :is="icons.book" /></el-icon>
-          <span>功法管理</span>
-        </el-menu-item>
-        <el-menu-item index="/spirit-stone">
-          <el-icon><component :is="icons.gem" /></el-icon>
-          <span>灵石管理</span>
-        </el-menu-item>
-        <el-menu-item index="/order">
-          <el-icon><component :is="icons.order" /></el-icon>
-          <span>订单管理</span>
-        </el-menu-item>
-        <el-sub-menu index="/system">
-          <template #title>
-            <el-icon><component :is="icons.setting" /></el-icon>
-            <span>系统管理</span>
-          </template>
-          <el-menu-item index="/system/user">
-            <el-icon><component :is="icons.user" /></el-icon>
-            <span>用户管理</span>
+        <template v-for="menu in menuTree" :key="menu.id">
+          <el-sub-menu v-if="menu.children && menu.children.length > 0" :index="menu.path">
+            <template #title>
+              <el-icon><component :is="getIcon(menu.icon)" /></el-icon>
+              <span>{{ menu.menuName }}</span>
+            </template>
+            <el-menu-item 
+              v-for="child in menu.children" 
+              :key="child.id" 
+              :index="child.path"
+            >
+              <el-icon><component :is="getIcon(child.icon)" /></el-icon>
+              <span>{{ child.menuName }}</span>
+            </el-menu-item>
+          </el-sub-menu>
+          <el-menu-item v-else :index="menu.path">
+            <el-icon><component :is="getIcon(menu.icon)" /></el-icon>
+            <span>{{ menu.menuName }}</span>
           </el-menu-item>
-          <el-menu-item index="/system/role">
-            <el-icon><component :is="icons.role" /></el-icon>
-            <span>角色管理</span>
-          </el-menu-item>
-          <el-menu-item index="/system/permission">
-            <el-icon><component :is="icons.key" /></el-icon>
-            <span>权限管理</span>
-          </el-menu-item>
-        </el-sub-menu>
-        <el-menu-item index="/menu">
-          <el-icon><component :is="icons.menu" /></el-icon>
-          <span>菜单管理</span>
-        </el-menu-item>
-        <el-menu-item index="/dict">
-          <el-icon><component :is="icons.dict" /></el-icon>
-          <span>数据字典</span>
-        </el-menu-item>
+        </template>
       </el-menu>
     </el-aside>
     <el-container class="layout-main">
@@ -84,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { 
   Wallet, 
@@ -102,28 +64,67 @@ import {
   Menu,
   Coin
 } from '@element-plus/icons-vue'
+import { getUserMenus } from '@/api/system'
 
 const router = useRouter()
 const route = useRoute()
 
-const icons = {
-  treasure: Wallet,
-  tool: Tools,
-  sword: KnifeFork,
-  pill: Cherry,
-  leaf: Flag,
-  book: Document,
-  gem: GoldMedal,
-  order: ShoppingCart,
-  setting: Setting,
-  user: User,
-  role: UserFilled,
-  key: Key,
-  menu: Menu,
-  dict: Coin
+const iconMap = {
+  'icon-treasure': Wallet,
+  'icon-tool': Tools,
+  'icon-sword': KnifeFork,
+  'icon-pill': Cherry,
+  'icon-leaf': Flag,
+  'icon-book': Document,
+  'icon-gem': GoldMedal,
+  'icon-order': ShoppingCart,
+  'icon-setting': Setting,
+  'icon-user': User,
+  'icon-role': UserFilled,
+  'icon-key': Key,
+  'icon-menu': Menu,
+  'icon-coin': Coin,
+  'icon-dict': Coin
 }
 
+const menuTree = ref([])
+
 const activeMenu = computed(() => route.path)
+
+const getIcon = (iconName) => {
+  return iconMap[iconName] || Document
+}
+
+const buildMenuTree = (menus) => {
+  const map = new Map()
+  const roots = []
+  
+  menus.forEach(menu => {
+    map.set(menu.id, { ...menu, children: [] })
+  })
+  
+  menus.forEach(menu => {
+    if (menu.parentId === 0) {
+      roots.push(map.get(menu.id))
+    } else {
+      const parent = map.get(menu.parentId)
+      if (parent) {
+        parent.children.push(map.get(menu.id))
+      }
+    }
+  })
+  
+  return roots.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+}
+
+const loadMenus = async () => {
+  try {
+    const res = await getUserMenus()
+    menuTree.value = buildMenuTree(res.data)
+  } catch (error) {
+    console.error('加载菜单失败:', error)
+  }
+}
 
 const logout = () => {
   localStorage.removeItem('token')
@@ -132,6 +133,10 @@ const logout = () => {
   localStorage.removeItem('permissions')
   router.push('/login')
 }
+
+onMounted(() => {
+  loadMenus()
+})
 </script>
 
 <style scoped>
