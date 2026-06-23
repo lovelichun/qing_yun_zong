@@ -28,6 +28,26 @@ CREATE TABLE IF NOT EXISTS `sys_permission` (
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统权限表';
 
+CREATE TABLE IF NOT EXISTS `sys_user_role` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `role_id` BIGINT NOT NULL COMMENT '角色ID',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  UNIQUE KEY `uk_user_role` (`user_id`, `role_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_role_id` (`role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户角色关联表';
+
+CREATE TABLE IF NOT EXISTS `sys_role_permission` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  `role_id` BIGINT NOT NULL COMMENT '角色ID',
+  `permission_id` BIGINT NOT NULL COMMENT '权限ID',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  UNIQUE KEY `uk_role_permission` (`role_id`, `permission_id`),
+  KEY `idx_role_id` (`role_id`),
+  KEY `idx_permission_id` (`permission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色权限关联表';
+
 CREATE TABLE IF NOT EXISTS `sys_menu` (
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '菜单ID',
   `parent_id` BIGINT DEFAULT 0 COMMENT '父菜单ID',

@@ -37,9 +37,10 @@
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column prop="updateTime" label="修改时间" width="180" />
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="240" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button link type="success" @click="handleAssignRoles(row)">分配角色</el-button>
             <el-button link type="danger" @click="handleDelete(row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -80,13 +81,26 @@
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 角色分配对话框 -->
+    <el-dialog v-model="roleDialogVisible" title="分配角色" width="500px">
+      <el-checkbox-group v-model="selectedRoleIds">
+        <el-checkbox v-for="role in allRoles" :key="role.id" :label="role.id">
+          {{ role.roleName }}
+        </el-checkbox>
+      </el-checkbox-group>
+      <template #footer>
+        <el-button @click="roleDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveRoles">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getUserList, addUser, updateUser, deleteUser } from '@/api/system'
+import { getUserList, addUser, updateUser, deleteUser, getRoleList, assignRolesToUser, getUserRoles } from '@/api/system'
 
 const queryForm = reactive({ username: '', status: null })
 const pagination = reactive({ pageNum: 1, pageSize: 10, total: 0 })
@@ -100,6 +114,12 @@ const rules = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }]
 }
+
+// 角色分配相关
+const roleDialogVisible = ref(false)
+const allRoles = ref([])
+const selectedRoleIds = ref([])
+const currentUserId = ref(null)
 
 const loadData = async () => {
   try {
@@ -133,6 +153,34 @@ const handleDelete = async (id) => {
     await ElMessageBox.confirm('确定要删除该用户吗?', '提示', { type: 'warning' })
     await deleteUser(id); ElMessage.success('删除成功'); loadData()
   } catch (error) { if (error !== 'cancel') ElMessage.error('删除失败') }
+}
+
+// 角色分配相关函数
+const handleAssignRoles = async (row) => {
+  currentUserId.value = row.id
+  try {
+    // 加载所有角色
+    const rolesRes = await getRoleList({ pageNum: 1, pageSize: 100 })
+    allRoles.value = rolesRes.data.records
+    
+    // 加载用户已有的角色
+    const userRolesRes = await getUserRoles(row.id)
+    selectedRoleIds.value = userRolesRes.data.map(role => role.id)
+    
+    roleDialogVisible.value = true
+  } catch (error) {
+    ElMessage.error('加载角色数据失败')
+  }
+}
+
+const handleSaveRoles = async () => {
+  try {
+    await assignRolesToUser(currentUserId.value, selectedRoleIds.value)
+    ElMessage.success('角色分配成功')
+    roleDialogVisible.value = false
+  } catch (error) {
+    ElMessage.error('角色分配失败')
+  }
 }
 
 onMounted(() => { loadData() })

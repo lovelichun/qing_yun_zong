@@ -6,6 +6,8 @@ import com.qingyunzong.entity.Permission;
 import com.qingyunzong.entity.Role;
 import com.qingyunzong.entity.User;
 
+import java.util.List;
+
 public interface SystemService {
 
     IPage<User> listUsers(Page<User> page);
@@ -25,4 +27,12 @@ public interface SystemService {
     void savePermission(Permission permission);
     void updatePermission(Permission permission);
     void deletePermissionById(Long id);
+
+    // 用户角色关联
+    void assignRolesToUser(Long userId, List<Long> roleIds);
+    List<Role> getUserRoles(Long userId);
+
+    // 角色权限关联
+    void assignPermissionsToRole(Long roleId, List<Long> permissionIds);
+    List<Permission> getRolePermissions(Long roleId);
 }

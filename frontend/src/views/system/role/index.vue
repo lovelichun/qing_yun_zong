@@ -37,9 +37,10 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="240" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button link type="success" @click="handleAssignPermissions(row)">分配权限</el-button>
             <el-button link type="danger" @click="handleDelete(row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -80,13 +81,26 @@
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 权限分配对话框 -->
+    <el-dialog v-model="permissionDialogVisible" title="分配权限" width="500px">
+      <el-checkbox-group v-model="selectedPermissionIds">
+        <el-checkbox v-for="permission in allPermissions" :key="permission.id" :label="permission.id">
+          {{ permission.permName }}
+        </el-checkbox>
+      </el-checkbox-group>
+      <template #footer>
+        <el-button @click="permissionDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSavePermissions">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getRoleList, addRole, updateRole, deleteRole } from '@/api/system'
+import { getRoleList, addRole, updateRole, deleteRole, getPermissionList, assignPermissionsToRole, getRolePermissions } from '@/api/system'
 
 const queryForm = reactive({ roleName: '', status: null })
 const pagination = reactive({ pageNum: 1, pageSize: 10, total: 0 })
@@ -99,6 +113,12 @@ const rules = {
   roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
   roleCode: [{ required: true, message: '请输入角色编码', trigger: 'blur' }]
 }
+
+// 权限分配相关
+const permissionDialogVisible = ref(false)
+const allPermissions = ref([])
+const selectedPermissionIds = ref([])
+const currentRoleId = ref(null)
 
 const loadData = async () => {
   try {
@@ -132,6 +152,34 @@ const handleDelete = async (id) => {
     await ElMessageBox.confirm('确定要删除该角色吗?', '提示', { type: 'warning' })
     await deleteRole(id); ElMessage.success('删除成功'); loadData()
   } catch (error) { if (error !== 'cancel') ElMessage.error('删除失败') }
+}
+
+// 权限分配相关函数
+const handleAssignPermissions = async (row) => {
+  currentRoleId.value = row.id
+  try {
+    // 加载所有权限
+    const permissionsRes = await getPermissionList({ pageNum: 1, pageSize: 100 })
+    allPermissions.value = permissionsRes.data.records
+    
+    // 加载角色已有的权限
+    const rolePermissionsRes = await getRolePermissions(row.id)
+    selectedPermissionIds.value = rolePermissionsRes.data.map(permission => permission.id)
+    
+    permissionDialogVisible.value = true
+  } catch (error) {
+    ElMessage.error('加载权限数据失败')
+  }
+}
+
+const handleSavePermissions = async () => {
+  try {
+    await assignPermissionsToRole(currentRoleId.value, selectedPermissionIds.value)
+    ElMessage.success('权限分配成功')
+    permissionDialogVisible.value = false
+  } catch (error) {
+    ElMessage.error('权限分配失败')
+  }
 }
 
 onMounted(() => { loadData() })

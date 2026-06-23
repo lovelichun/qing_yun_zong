@@ -10,6 +10,8 @@ import com.qingyunzong.service.SystemService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/system")
 public class SystemController {
@@ -111,5 +113,29 @@ public class SystemController {
     public Result<Void> deletePermissionById(@PathVariable Long id) {
         systemService.deletePermissionById(id);
         return Result.success(null);
+    }
+
+    // 用户角色关联
+    @PostMapping("/user/{userId}/roles")
+    public Result<Void> assignRolesToUser(@PathVariable Long userId, @RequestBody List<Long> roleIds) {
+        systemService.assignRolesToUser(userId, roleIds);
+        return Result.success(null);
+    }
+
+    @GetMapping("/user/{userId}/roles")
+    public Result<List<Role>> getUserRoles(@PathVariable Long userId) {
+        return Result.success(systemService.getUserRoles(userId));
+    }
+
+    // 角色权限关联
+    @PostMapping("/role/{roleId}/permissions")
+    public Result<Void> assignPermissionsToRole(@PathVariable Long roleId, @RequestBody List<Long> permissionIds) {
+        systemService.assignPermissionsToRole(roleId, permissionIds);
+        return Result.success(null);
+    }
+
+    @GetMapping("/role/{roleId}/permissions")
+    public Result<List<Permission>> getRolePermissions(@PathVariable Long roleId) {
+        return Result.success(systemService.getRolePermissions(roleId));
     }
 }

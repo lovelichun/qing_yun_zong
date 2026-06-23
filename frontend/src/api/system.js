@@ -113,3 +113,35 @@ export const deletePermission = (id) => {
     method: 'delete'
   })
 }
+
+// 用户角色关联
+export const assignRolesToUser = (userId, roleIds) => {
+  return request({
+    url: `/system/user/${userId}/roles`,
+    method: 'post',
+    data: roleIds
+  })
+}
+
+export const getUserRoles = (userId) => {
+  return request({
+    url: `/system/user/${userId}/roles`,
+    method: 'get'
+  })
+}
+
+// 角色权限关联
+export const assignPermissionsToRole = (roleId, permissionIds) => {
+  return request({
+    url: `/system/role/${roleId}/permissions`,
+    method: 'post',
+    data: permissionIds
+  })
+}
+
+export const getRolePermissions = (roleId) => {
+  return request({
+    url: `/system/role/${roleId}/permissions`,
+    method: 'get'
+  })
+}

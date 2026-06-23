@@ -1,18 +1,27 @@
 package com.qingyunzong.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qingyunzong.entity.Permission;
 import com.qingyunzong.entity.Role;
+import com.qingyunzong.entity.RolePermission;
 import com.qingyunzong.entity.User;
+import com.qingyunzong.entity.UserRole;
 import com.qingyunzong.mapper.PermissionMapper;
 import com.qingyunzong.mapper.RoleMapper;
+import com.qingyunzong.mapper.RolePermissionMapper;
 import com.qingyunzong.mapper.UserMapper;
+import com.qingyunzong.mapper.UserRoleMapper;
 import com.qingyunzong.service.SystemService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SystemServiceImpl implements SystemService {
@@ -25,6 +34,12 @@ public class SystemServiceImpl implements SystemService {
 
     @Resource
     private PermissionMapper permissionMapper;
+
+    @Resource
+    private UserRoleMapper userRoleMapper;
+
+    @Resource
+    private RolePermissionMapper rolePermissionMapper;
 
     @Override
     public IPage<User> listUsers(Page<User> page) {
@@ -108,5 +123,81 @@ public class SystemServiceImpl implements SystemService {
     @Override
     public void deletePermissionById(Long id) {
         permissionMapper.deleteById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void assignRolesToUser(Long userId, List<Long> roleIds) {
+        // 删除用户原有的角色关联
+        LambdaQueryWrapper<UserRole> deleteWrapper = new LambdaQueryWrapper<>();
+        deleteWrapper.eq(UserRole::getUserId, userId);
+        userRoleMapper.delete(deleteWrapper);
+
+        // 添加新的角色关联
+        if (roleIds != null && !roleIds.isEmpty()) {
+            List<UserRole> userRoles = roleIds.stream().map(roleId -> {
+                UserRole userRole = new UserRole();
+                userRole.setUserId(userId);
+                userRole.setRoleId(roleId);
+                userRole.setCreateTime(LocalDateTime.now());
+                return userRole;
+            }).collect(Collectors.toList());
+            userRoles.forEach(userRoleMapper::insert);
+        }
+    }
+
+    @Override
+    public List<Role> getUserRoles(Long userId) {
+        LambdaQueryWrapper<UserRole> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserRole::getUserId, userId);
+        List<UserRole> userRoles = userRoleMapper.selectList(wrapper);
+        
+        if (userRoles.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Long> roleIds = userRoles.stream()
+                .map(UserRole::getRoleId)
+                .collect(Collectors.toList());
+        
+        return roleMapper.selectBatchIds(roleIds);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void assignPermissionsToRole(Long roleId, List<Long> permissionIds) {
+        // 删除角色原有的权限关联
+        LambdaQueryWrapper<RolePermission> deleteWrapper = new LambdaQueryWrapper<>();
+        deleteWrapper.eq(RolePermission::getRoleId, roleId);
+        rolePermissionMapper.delete(deleteWrapper);
+
+        // 添加新的权限关联
+        if (permissionIds != null && !permissionIds.isEmpty()) {
+            List<RolePermission> rolePermissions = permissionIds.stream().map(permissionId -> {
+                RolePermission rolePermission = new RolePermission();
+                rolePermission.setRoleId(roleId);
+                rolePermission.setPermissionId(permissionId);
+                rolePermission.setCreateTime(LocalDateTime.now());
+                return rolePermission;
+            }).collect(Collectors.toList());
+            rolePermissions.forEach(rolePermissionMapper::insert);
+        }
+    }
+
+    @Override
+    public List<Permission> getRolePermissions(Long roleId) {
+        LambdaQueryWrapper<RolePermission> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RolePermission::getRoleId, roleId);
+        List<RolePermission> rolePermissions = rolePermissionMapper.selectList(wrapper);
+        
+        if (rolePermissions.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Long> permissionIds = rolePermissions.stream()
+                .map(RolePermission::getPermissionId)
+                .collect(Collectors.toList());
+        
+        return permissionMapper.selectBatchIds(permissionIds);
     }
 }
