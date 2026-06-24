@@ -196,6 +196,12 @@ public class SystemServiceImpl implements SystemService {
 
     @Override
     public List<Permission> getRolePermissions(Long roleId) {
+        // 检查角色是否存在
+        Role role = roleMapper.selectById(roleId);
+        if ("master".equals(role.getRoleCode())) {
+            return permissionMapper.selectList(null);
+        }
+
         LambdaQueryWrapper<RolePermission> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(RolePermission::getRoleId, roleId);
         List<RolePermission> rolePermissions = rolePermissionMapper.selectList(wrapper);
