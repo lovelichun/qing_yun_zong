@@ -16,6 +16,7 @@ mybatis-plus:
     db-config:
       id-type: auto
       table-underline: true
+  mapper-locations: classpath:/mapper/**/*.xml
 
 sa-token:
   token-name: satoken
@@ -25,3 +26,9 @@ sa-token:
   is-share: false
   token-style: uuid
   is-log: true
+  alone-redis:
+    database: 2
+    host: 127.0.0.1
+    port: 6379
+    password:
+    timeout: 10s
