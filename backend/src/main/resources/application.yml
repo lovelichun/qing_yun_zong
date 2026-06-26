@@ -13,6 +13,12 @@ spring:
       port: 6379
       password: 123456
       timeout: 10s
+      lettuce:
+        pool:
+          max-active: 100
+          max-idle: 20
+          min-idle: 5
+          max-wait: 10s
 
 mybatis-plus:
   configuration:
@@ -38,6 +44,12 @@ sa-token:
     port: 6379
     password: 123456
     timeout: 10s
+    lettuce:
+      pool:
+        max-active: 100
+        max-idle: 20
+        min-idle: 5
+        max-wait: 10s
 
     
 
