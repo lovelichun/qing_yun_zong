@@ -7,6 +7,12 @@ spring:
     username: test
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+      timeout: 10s
 
 mybatis-plus:
   configuration:
@@ -32,3 +38,8 @@ sa-token:
     port: 6379
     password: 123456
     timeout: 10s
+
+    
+
+
+
