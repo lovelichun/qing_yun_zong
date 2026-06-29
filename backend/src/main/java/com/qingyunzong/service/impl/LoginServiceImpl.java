@@ -11,6 +11,7 @@ import com.qingyunzong.service.LoginService;
 import com.qingyunzong.service.SystemService;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import jakarta.annotation.Resource;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -21,6 +22,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,8 +38,30 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private SystemService systemService;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    private static final String CAPTCHA_PREFIX = "captcha:";
+    private static final long CAPTCHA_EXPIRE_SECONDS = 60;
+
     @Override
     public Map<String, Object> login(LoginDTO loginDTO) {
+        String captchaKey = loginDTO.getCaptchaKey();
+        String captcha = loginDTO.getCaptcha();
+
+        String key = CAPTCHA_PREFIX + captchaKey;
+        String storedCaptcha = stringRedisTemplate.opsForValue().get(key);
+        
+        if (storedCaptcha == null) {
+            throw new RuntimeException("验证码已过期");
+        }
+        
+        if (!storedCaptcha.equalsIgnoreCase(captcha)) {
+            throw new RuntimeException("验证码错误");
+        }
+        
+        stringRedisTemplate.delete(key);
+
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, loginDTO.getUsername()));
 
@@ -71,14 +96,24 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public String getCaptcha() {
+    public Map<String, Object> getCaptcha() {
         String captchaText = captchaProducer.createText();
+        
+        String captchaKey = UUID.randomUUID().toString().replace("-", "");
+        
+        String key = CAPTCHA_PREFIX + captchaKey;
+        stringRedisTemplate.opsForValue().set(key, captchaText, CAPTCHA_EXPIRE_SECONDS, TimeUnit.SECONDS);
         
         BufferedImage captchaImage = captchaProducer.createImage(captchaText);
         
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ImageIO.write(captchaImage, "png", outputStream);
-            return "data:image/png;base64," + Base64.getEncoder().encodeToString(outputStream.toByteArray());
+            String imageBase64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(outputStream.toByteArray());
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("captchaKey", captchaKey);
+            result.put("image", imageBase64);
+            return result;
         } catch (IOException e) {
             throw new RuntimeException("生成验证码失败", e);
         }

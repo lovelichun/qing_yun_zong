@@ -55,7 +55,8 @@ const router = useRouter()
 const form = ref({
   username: '',
   password: '',
-  captcha: ''
+  captcha: '',
+  captchaKey: ''
 })
 
 const formRef = ref(null)
@@ -63,7 +64,9 @@ const captchaUrl = ref('')
 
 const refreshCaptcha = async () => {
   const res = await getCaptcha()
-  captchaUrl.value = res.data
+  captchaUrl.value = res.data.image
+  form.value.captchaKey = res.data.captchaKey
+  form.value.captcha = ''
 }
 
 const login = async () => {

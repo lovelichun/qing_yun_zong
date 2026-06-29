@@ -10,7 +10,6 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -34,7 +33,7 @@ public class LoginController {
     }
     @SaIgnore
     @GetMapping("/captcha")
-    public Result<String> captcha() {
+    public Result<Map<String, Object>> captcha() {
         return Result.success(loginService.getCaptcha());
     }
 }

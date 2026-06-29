@@ -10,5 +10,5 @@ public interface LoginService {
 
     void logout();
 
-    String getCaptcha();
+    Map<String, Object> getCaptcha();
 }
